@@ -1,0 +1,15 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>今日报价 - 砂石报价系统</title><link rel="stylesheet" href="/static/style.css"></head><body>
+<header><b>砂石报价系统</b><span>股东 {{ user[:3] }}****{{ user[-4:] }} &nbsp; <a href="/logout">退出登录</a></span></header>
+<main><div class="card"><h2 style="margin-top:0">今日价格（模拟数据）</h2>
+<div class="meta">更新时间：<span id="ts">--</span> · 每 3 秒自动刷新 · 红涨绿跌</div>
+<table><thead><tr><th>品种</th><th>今日价格（元/吨）</th><th>涨跌</th><th>涨跌幅</th><th>更新时间</th></tr></thead><tbody id="tb"></tbody></table></div></main>
+<script>
+let last={};
+async function load(){const r=await fetch('/api/prices');if(r.status===401){location='/login';return;}
+const j=await r.json();document.getElementById('ts').textContent=j.time;
+document.getElementById('tb').innerHTML=j.items.map(i=>{const c=i.change>0?'up':i.change<0?'down':'';const s=i.change>0?'+':'';
+const f=last[i.name]!==undefined&&last[i.name]!==i.price?' flash':'';last[i.name]=i.price;
+return `<tr class="${f}"><td>${i.name}</td><td class="${c}">${i.price.toFixed(2)}</td><td class="${c}">${s}${i.change.toFixed(2)}</td><td class="${c}">${s}${i.change_pct.toFixed(2)}%</td><td>${i.updated.slice(11)}</td></tr>`}).join('');}
+load();setInterval(load,3000);
+</script></body></html>
